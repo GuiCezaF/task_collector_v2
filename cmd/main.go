@@ -10,20 +10,14 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/GuiCezaF/task-collector-v2/internal/utils"
+	"github.com/GuiCezaF/task-collector-v2/internal/routes"
 )
-
-func handler(w http.ResponseWriter, r *http.Request) {
-	response := utils.Response{Message: "Server is running", Status: http.StatusOK}
-	utils.JSONResponse(w, response, http.StatusOK)
-}
 
 func main() {
 	port := ":8080"
 	var wg sync.WaitGroup
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", handler)
+	mux := routes.RegisterRoutes()
 
 	server := &http.Server{
 		Addr:    port,
@@ -33,8 +27,10 @@ func main() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 
+	wg.Add(1)
 	go func() {
-		fmt.Printf("🚀 Servidor rodando em http://localhost%s \n", port)
+		defer wg.Done()
+		fmt.Printf("🚀 Servidor rodando em http://localhost%s/api/v2/ \n", port)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			fmt.Printf("Erro ao iniciar servidor: %v\n", err)
 		}
