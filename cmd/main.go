@@ -11,10 +11,15 @@ import (
 	"time"
 
 	"github.com/GuiCezaF/task-collector-v2/internal/routes"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	port := ":8080"
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("Erro ao carregar o arquivo .env")
+	}
+
+	port := os.Getenv("PORT")
 	var wg sync.WaitGroup
 
 	mux := routes.RegisterRoutes()
